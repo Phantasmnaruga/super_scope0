@@ -1,0 +1,157 @@
+import ddf.minim.*;
+Minim minim;
+AudioSnippet oto;
+AudioSnippet oto2;
+AudioSnippet oto3;
+
+float x=20;
+float y=200;
+float t[]=new float[10];
+float v[]=new float[10];
+float d[]=new float[10];
+float tamaY[]=new float[10];
+int h[]=new int[10];
+int go[]=new int[10];
+int charge;
+float plus[]=new float[10];
+int count=0;
+
+void setup() {
+  size(1200, 600);
+  minim =new Minim(this);
+  oto = minim.loadSnippet("launcher1.mp3");
+  oto2 = minim.loadSnippet("minimamlaser.mp3");
+  oto3 = minim.loadSnippet("pyo1.mp3");
+}
+
+void draw() {
+  background(255);
+
+
+  noStroke();
+  if (count<=48) {
+    for (int i=0; i<10; i++) {
+      if (go[i]==1) {
+        fill(242, 163, 83);
+        ellipse(x+350+d[i], tamaY[i], 30+h[i]*4, 30+h[i]*4);//球の表示
+        fill(255);
+        ellipse(x+350+d[i], tamaY[i], 15+h[i]*2, 15+h[i]*2);
+      }
+    }
+  }  
+  gun();//スーパースコープの表示
+  drawCharacter(mouseX, mouseY,0,0.5 );
+
+  for (int i=0; i<10; i++) {
+    d[i]=v[i]*t[i];
+    t[i]=t[i]+plus[i];//速度を与える。
+    if (d[i]>1000) {
+      v[i]=0;
+      t[i]=0;
+      plus[i]=0;//右端までいったらリセット
+      h[i]=0;
+      go[i]=0;
+      tamaY[i]=y+18;
+    }
+  }fill(0);
+  
+  if (count>=49) {
+    stroke(0);
+    fill(255);
+    rect(50, 500, 200, 50);//取り換えるボタンの表示
+    fill(255, 0, 0);
+    text("取り換える", 120, 525);
+  }
+}
+
+void gun() {//スーパースコープを描く関数
+  fill(255, 53, 13);
+  quad(x+350, y+40, x+370, y-10, x+380, y-10, x+360, y+40);
+  
+  fill(103, 94, 94);
+  quad(x+50, y+67, x+52, y+60, x+95, y+68, x+93, y+75);
+  rect(x, y+62, 30, 10);
+  quad(x+30, y+62, x+30, y+72, x+90, y+105, x+100, y+75);
+  quad(x+178, y-10, x+160, y+40, x+350, y+40, x+370, y-10);
+  quad(x+370, y-30, x+330, y-30, x+300, y-10, x+370, y-10);
+  quad(x+330, y+40, x+305, y+105, x+260, y+105, x+280, y+40);
+  quad(x+340, y+40, x+335, y+50, x+275, y+55, x+280, y+40);
+
+  fill(200, 200, 200);
+  quad(x, y, x+10, y-10, x+40, y-10, x+40, y+40);
+  quad(x+40, y-10, x+180, y-10, x+160, y+40, x+40, y+40);
+  quad(x+45, y+40, x+50, y+60, x+140, y+45, x+138, y+40);
+  triangle(x+138, y+40, x+140, y+50, x+160, y+40);
+  quad(x+50, y+60, x+100, y+70, x+110, y+65, X+120, y+40);
+  quad(x+300, y-10, x+240, y+10, x+172, y+10, x+180, y-10);
+}
+
+
+
+void keyPressed(){//スーパースコープの操作
+  switch(keyCode) {
+  case UP:
+    y=y-10;
+    break;
+  case DOWN:
+    y=y+10;
+    break;
+  case RIGHT:
+    if (count<=48);{
+      for (int i=0; i<10; i++){
+        if (go[i]==0){
+          charge=i;
+          h[i]=h[i]+1;
+          break;
+        }
+      }
+    }
+    break;
+  }
+}
+void keyReleased(){
+  switch(keyCode){
+  case RIGHT:
+    if (count<=48){
+      go[charge]=1;
+      plus[charge]=0.1;
+      tamaY[charge]=y+18;
+    }
+    if (h[charge]>15&&count<=48){
+      v[charge]=200;
+      count=count+6;
+      oto.rewind();
+      oto.play();
+    }
+    if (h[charge]<=15&&count<48) {
+      oto2.rewind();
+      oto2.play();
+    }
+    if (h[charge]<=15&&count<=48) {
+      v[charge]=150;
+
+      count=count+1;
+    }
+
+    if (count>=49) {
+      oto3.rewind();
+      oto3.play();
+    }
+    break;
+  }
+}
+
+void stop() {
+  oto2.close();
+  oto3.close();
+  oto.close(); 
+
+  minim.stop();
+  super.stop(); 
+}
+
+void mousePressed() {//取り換えるボタンを押す操作
+  if (count>=49&&mouseX>=50&&mouseX<=250&&mouseY<=550&&mouseY>=500){
+    count=0;
+  }
+}
